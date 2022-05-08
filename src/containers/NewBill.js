@@ -24,22 +24,30 @@ export default class NewBill {
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
-
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
+    const fileExtension = fileName.split('.').pop();
+    if (fileExtension === "jpg" || fileExtension === "png" || fileExtension === "jpeg") {
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true
+          }
+        })
       .then(({fileUrl, key}) => {
-        console.log(fileUrl)
         this.billId = key
         this.fileUrl = fileUrl
         this.fileName = fileName
-      }).catch(error => console.error(error))
-  }
+      }).catch((error) => console.error(error))
+    }else{
+      //console.log(this.document.querySelector(`input[data-testid="file"]`).value)
+      this.document.querySelector(`input[data-testid="file"]`).value = ""
+      alert ('Select a file type .jpg, .jpeg or .png')
+    }
+
+  /* également ajout l'attribut "Accept" pour le Tag Input*/
+   }
+
   handleSubmit = e => {
     e.preventDefault()
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
@@ -57,11 +65,13 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log(bill.fileName)
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
 
   // not need to cover this function by tests
+  /* istanbul ignore next */
   updateBill = (bill) => {
     if (this.store) {
       this.store
@@ -70,7 +80,7 @@ export default class NewBill {
       .then(() => {
         this.onNavigate(ROUTES_PATH['Bills'])
       })
-      .catch(error => console.error(error))
+      .catch((error) => console.error(error))
     }
   }
 }
